@@ -42,42 +42,48 @@ void NFSSimulator(string s,int startState){
             bool isSelfRepeating = false;
             for(std::list<pair<char,char> >::iterator it = temp.begin(); it != temp.end(); ++it){
                 char c = s[i];
-                if(it->first ==c && isVisited.find(it->second)==isVisited.end()){
-                    isVisited.insert(it->second);
-                    stageRecord.push_back(it->second);
-                }
                 if(it->first == c && stageRecord[j] == it->second){
                     isSelfRepeating = true;
+                    continue;
+                }
+                if(it->first ==c ){
+                    //isVisited.insert(it->second);
+                    stageRecord.push_back(it->second);
                 }
              
             }
             if(!isSelfRepeating){
-                isVisited.erase(j);
-                stageRecord[j]=0;
+                //isVisited.erase(j);
+                stageRecord[j]=-1;
             }
-           
-
         }
     }
-    vector<int>acceptResult;
+    unordered_set<int>acceptResult;
+    unordered_set<int>rejectResult;
+
     for(int i = 0;i<stageRecord.size();i++){
+        //cout<<stageRecord[i]<<endl;
         if(stateRecord[stageRecord[i]] == "accept"){
-            acceptResult.push_back(stageRecord[i]);
+            acceptResult.insert(stageRecord[i]);
         }
     }
 
     if(acceptResult.size() == 0){
-        cout<<"reject ";
         for(int i = 0;i<stageRecord.size();i++){
-             if(stageRecord[i]!=0)
-            cout<<stageRecord[i]<<" ";
+            if(stageRecord[i]!=-1){
+                rejectResult.insert(stageRecord[i]);
+            }
+        }
+        cout<<"reject ";
+        for(auto &i : rejectResult){
+            cout<<i<<" ";
         }
         cout<<"\n";
     }
     else{
         cout<<"accept ";
-        for(int i = 0;i<acceptResult.size();i++){
-            cout<<acceptResult[i]<<" ";
+        for(auto &i : acceptResult){
+            cout<<i<<" ";
         }
         cout<<"\n";
     }
@@ -106,9 +112,12 @@ int main(int argc, char*argv[]){
         ss>>name;
         if(name =="state"){
             ss>>id>>behavior;
+            if(behavior=="start"){
+                startState=id;
+                ss>>behavior;
+            }
             stateRecorder(behavior,id);
-            if(behavior=="start")
-            startState=id;
+        
         }
         else if (name == "transition"){
             ss>>id>>approch>>result;
